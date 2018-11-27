@@ -56,3 +56,35 @@ EMAIL_HOST_PASSWORD =  os.environ['EMAIL_HOST_PASSWORD'] # 授权码
 EMAIL_SUBJECT_PREFIX = '[陈相漆的博客] '
 EMAIL_USE_TLS = True  # 与SMTP服务器通信时，是否启动TLS链接(安全链接)
 #'izeksgicvzdbegjh'
+ADMINS = (
+  ('admin','1986541495@qq.com')
+,)
+
+#日志文件
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/home/mysite_debug.log',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
