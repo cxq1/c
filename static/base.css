@@ -11,3 +11,15 @@ ul {
 ul.navbar-right{
     margin-right: 0;
 }
+div.footer{
+    margin-top: 3em;
+    background-color: #eee;
+    color: #555;
+}
+div.website-info{
+    text-align: center;
+}
+div.website-info p{
+    margin-bottom: 0;
+    
+}
