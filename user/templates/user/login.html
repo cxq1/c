@@ -1,7 +1,7 @@
 
 {% extends 'base.html' %}
 {% load staticfiles %}
-
+{% load user_tags %}
 {% block title %}
     我的网站|登入
 {% endblock %}
@@ -9,7 +9,7 @@
 {% block nav_home_active %}active{% endblock %}
 
 {% block content %}
-    <div class="containter">
+    <div class="container">
         <div class="row">
             <div class="col-xs-10 col-xs-offset-1 col-md-4 col-md-offset-4">
                 {% if not user.is_authenticated %}
@@ -23,14 +23,25 @@
                                 {% csrf_token %}
                                 {% for field in login_form %}
                                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+
                                     {{ field }}
                                     <p class="text-danger">{{ field.errors.as_text }}</p>
                                 {% endfor %}
-                                <spam class="pull-left text-danger">{{ login_form.non_field_errors }}</spam>
+                                <spam id='tip' class="pull-left text-danger">{{ login_form.non_field_errors }}</spam>
+                                <a href="{% get_login_qq_url %}" style="margin-top:8px;dsiplay:inline-block;">
+                                    <img src="{% static "user/qq.png" %}">
+                                    使用QQ登录
+                                </a>
                                 <input type="submit" value="登录" class="btn btn-primary pull-right">
                             </form>
                         </div>
                     </div>
+                    {% if request.GET.from %}
+                            <a href="{% url 'register' %}?from={{ request.GET.from }}" style="maring:0 auto; display:block;">前往注册&gt;&gt;</a>
+                            {% else %}
+                            <a href="{% url 'register' %}?from={{ request.get_full_path }}" style="maring:0 auto; display:block;">注册</a>
+                            {% endif %}
+                    
                 {% else %}
                     <span>未登录，跳转到首页</span>
                     <script type="text/javascript">window.location.href='/';</script>
