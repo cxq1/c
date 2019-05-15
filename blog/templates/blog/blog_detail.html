@@ -61,10 +61,10 @@
                                <div id="reply_content"></div>
                            </div>
                            {% csrf_token %}
-                           {% get_comment_form blog as comment_form %}                  
+                           {% get_comment_form blog as comment_form %}  
                            {% for field in comment_form %}
-                               {{ field }}
-                           {% endfor %}
+                                {{ field }}
+                            {% endfor %}           
                            <span id="comment_error" class="text-danger pull-left"></span>
                            <input type="submit" value="评论" class="btn btn-primary pull-right">
                        </form>
@@ -102,7 +102,7 @@
                                        <div id="comment_{{ reply.pk }}">
                                            {{ reply.text|safe }}
                                        </div>
-                                       <div class="like" onclick="likeChange(this, '{% get_content_type reply %}', {{ reply.pk }})">
+                                        <div class="like" onclick="likeChange(this, '{% get_content_type reply %}', {{ reply.pk }})">
                                            <span class="glyphicon glyphicon-thumbs-up {% get_like_status reply %}"></span>
                                            <span class="liked-num">{% get_like_count reply %}</span>
                                        </div>
@@ -201,7 +201,7 @@
                                         '</div>' +
                                         '<a href="javascript:reply({0});">回复</a>' +
                                     '</div>';
-                            reply_html = reply_html.format(data['pk'], data['username'], timeFormat(data['comment_time']), data['reply_to'], data['text'], data['content_type']);
+                            reply_html = reply_html.format(data['pk'], data['username'], timeFormat(data['comment_time']), data['   reply_to'], data['text'], data['content_type']);
                             $("#root_" + data['root_pk']).append(reply_html);
                         }
                         
@@ -248,7 +248,7 @@
                         liked_num.text(data['liked_num']);
                     }else{
                         if(data['code']==400){
-                            $('#login_modal').modal('show');
+                           window.location.href='{% url 'login' %}?from={{ request.GET.from }}';
                         }else{
                             alert(data['message']);    
                         }                        

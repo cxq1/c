@@ -1,26 +1,123 @@
 import string
 import random
 import time
+import json
+from urllib.request import urlopen
+from urllib.parse import urlencode,parse_qs
 from django.shortcuts import render, redirect
+from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.http import JsonResponse
 from django.core.mail import send_mail
-from .forms import LoginForm, RegForm, ChangeNicknameForm, BindEmailForm
-from .models import Profile
+from .forms import LoginForm, RegForm, ChangeNicknameForm, BindEmailForm,BindQQForm
+from .models import Profile,OAuthRelationship
+
+def login_by_qq(request):   
+    state = request.GET['state']
+    code = request.GET['code']
+
+    if state != settings.QQ_STATE:
+        raise Exception("state error")
 
 
-def login_for_medal(request):
-    login_form = LoginForm(request.POST)
-    data = {}
-    if login_form.is_valid():
-        user = login_form.cleaned_data['user']
-        auth.login(request, user)
-        data['status'] = 'SUCCESS'
+    params = {
+        'grant_type':'authorization_code',
+        'client_id':settings.QQ_APP_ID,
+        'client_secret':settings.QQ_APP_KEY,
+        'code':code,
+        'redirect_uri':settings.QQ_REDIRECT_URL
+    }
+    response = urlopen('https://graph.qq.com/oauth2.0/token?'+urlencode(params))
+    data = response.read().decode('utf-8')
+    access_token = parse_qs(data)['access_token'][0]
+
+    #获取openid
+    response= urlopen('https://graph.qq.com/oauth2.0/me?access_token='+access_token)
+    data =response.read().decode('utf-8')
+    openid = json.loads(data[10:-4])['openid']
+
+    #判断openid是否关联user
+    if OAuthRelationship.objects.filter(openid=openid,oauth_type=0).exists():
+        relationship = OAuthRelationship.objects.get(openid=openid,oauth_type=0)
+        auth.login(request,relationship.user)
+        
+        
+        return redirect(reverse('home'))
     else:
-        data['status'] = 'ERROR'
-    return JsonResponse(data)
+        request.session['openid']=openid
+
+        params = {
+            'access_token': access_token,
+            'oauth_consumer_key': settings.QQ_APP_ID,
+            'openid': openid,
+        }
+        response = urlopen('https://graph.qq.com/user/get_user_info?' + urlencode(params))
+        data = json.loads(response.read().decode('utf8'))
+        params={
+            'nickname':data['nickname'],
+            'avatar':data['figureurl_qq_1'],
+        }
+        return redirect(reverse('bind_qq')+'?'+urlencode(params))
+
+def bind_qq(request):
+    if request.method=='POST':
+        bind_qq_form= BindQQForm(request.POST)
+        if bind_qq_form.is_valid():
+            user =bind_qq_form.cleaned_data['user']
+            openid = request.session.pop('openid')
+
+
+            relationship= OAuthRelationship()
+            relationship.user =user
+            relationship.openid = openid
+            relationship.oauth_type=0
+            relationship.save()
+
+
+            auth.login(request,user)
+            return redirect(reverse('home'))
+    else:
+        bind_qq_form = BindQQForm()
+    
+    context ={}
+    context['bind_qq_form'] = bind_qq_form
+    context['nickname'] = request.GET['nickname']
+    context['avatar'] =request.GET['avatar']   
+    return render(request,'user/bind_qq.html',context)
+
+def create_user_by_qq(request):
+    username = str(int(time.time()))
+    password =''.join(random.sample(string.ascii_letters+string.digits,16))
+    user = User.objects.create_user(username,'',password)
+
+    profile = Profile()
+    profile.user = user
+    profile.nickname = request.GET['nickname']
+    profile.save()
+
+    openid = request.session.pop('openid')
+    relationship = OAuthRelationship()
+    relationship.user = user
+    relationship.openid = openid
+    relationship.oauth_type = 0
+    relationship.save()
+
+    auth.login(request,user)
+    return redirect(reverse('home'))
+
+
+# def login_for_medal(request):
+#     login_form = LoginForm(request.POST)
+#     data = {}
+#     if login_form.is_valid():
+#         user = login_form.cleaned_data['user']
+#         auth.login(request, user)
+#         data['status'] = 'SUCCESS'
+#     else:
+#         data['status'] = 'ERROR'
+#     return JsonResponse(data)
 
 def login(request):
     if request.method == 'POST':
@@ -97,6 +194,7 @@ def bind_email(request):
             email = form.cleaned_data['email']
             request.user.email = email
             request.user.save()
+            del request.session['bind_email_code']
             return redirect(redirect_to)
     else:
         form = BindEmailForm()

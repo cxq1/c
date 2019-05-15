@@ -70,7 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'user.context_processors.login_modal_form',
+                
             ],
         },
     },
@@ -139,9 +139,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 #配置ckeditor
 CKEDITOR_UPLOAD_PATH ='upload/'
 
-CKEDITOR_CONFIGS={
+CKEDITOR_CONFIGS = {
     'default': {},
-    'comment_ckeditor':{'toolbar': 'custom',
+    'comment_ckeditor': {
+        'toolbar': 'custom',
         'toolbar_custom': [
             ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript'],
             ["TextColor", "BGColor", 'RemoveFormat'],
@@ -154,7 +155,6 @@ CKEDITOR_CONFIGS={
         'tabSpaces': 4,
         'removePlugins': 'elementspath',
         'resize_enabled': False,
-
     }
 }
 
@@ -169,3 +169,7 @@ CACHES = {
     }
 }
 
+QQ_APP_ID=101577522
+QQ_REDIRECT_URL='http://bkcxq.cn/user/login_by_qq'
+QQ_STATE='cxq'
+QQ_APP_KEY='95056289d819caa549b16e3aba89a238'

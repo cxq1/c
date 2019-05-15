@@ -1,7 +1,8 @@
 
 {% extends 'base.html' %}
 {% load staticfiles %}
-
+{% load static %}
+{% load user_tags %}
 {% block title %}
     我的网站|登入
 {% endblock %}
@@ -26,11 +27,18 @@
                                     {{ field }}
                                     <p class="text-danger">{{ field.errors.as_text }}</p>
                                 {% endfor %}
-                                <spam class="pull-left text-danger">{{ login_form.non_field_errors }}</spam>
+                                <span id='tip' class="pull-left text-danger">{{ login_form.non_field_errors }}</span>
+
+                                <a href="{% get_login_qq_url %}" style="margin-top: 8px; display: inline-block;"><img src="{% static 'user/qq.png' %}">欢迎使用QQ登录</a>
                                 <input type="submit" value="登录" class="btn btn-primary pull-right">
                             </form>
                         </div>
                     </div>
+                    {% if request.GET.from %}
+                        <a style="text-align: center; display: block;" href="{% url 'register' %}?from={{ request.GET.from }}">前往注册 &gt;&gt;</a>
+                    {% else %}
+                        <a style="text-align: center; display: block;" href="{% url 'register' %}?from={{ request.get_full_path }}">前往注册 &gt;&gt;</a>
+                    {% endif %}
                 {% else %}
                     <span>未登录，跳转到首页</span>
                     <script type="text/javascript">window.location.href='/';</script>

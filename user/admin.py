@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile,OAuthRelationship
 
 class ProfileInline(admin.StackedInline):
     model = Profile
@@ -14,6 +14,10 @@ class UserAdmin(BaseUserAdmin):
     def nickname(self, obj):
         return obj.profile.nickname
     nickname.short_description = '昵称'
+
+@admin.register(OAuthRelationship)
+class OAuthRelationshipAdmin(admin.ModelAdmin):
+    list_display=('user','openid','oauth_type')
 
 # Re-register UserAdmin
 admin.site.unregister(User)
