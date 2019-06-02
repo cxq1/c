@@ -19,5 +19,9 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text
+
+    def get_user(self):
+        return self.user
+
     class Meta:
         ordering=['comment_time']

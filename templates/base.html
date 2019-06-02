@@ -59,6 +59,7 @@
                                 {% if user.is_staff or user.is_superuser %}
                                     <li><a href="{% url 'admin:index' %}">后台管理</a></li>
                                 {% endif %}
+                                <li><a href="{% url 'my_notifications' %}">我的消息</a></li>
                                 <li><a href="{% url 'logout' %}?from={{ request.get_full_path }}">退出</a></li>
                             </ul>
                         </li>
