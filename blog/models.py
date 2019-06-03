@@ -28,6 +28,8 @@ class Blog(models.Model,ReadNumExpandMethod):
         return "<Blog: %s>"%self.title
     class Meta:
         ordering = ['-created_time']
+    def get_user(self):
+        return self.author
 '''
 class ReadNum(models.Model):
     read_num =models.IntegerField(default =0)

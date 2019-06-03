@@ -17,6 +17,9 @@ class Comment(models.Model):
     parent = models.ForeignKey('self', related_name='parent_comment', null=True, on_delete=models.CASCADE)
     reply_to = models.ForeignKey(User, related_name="replies", null=True, on_delete=models.CASCADE)
 
+    def get_user(self):
+        return self.user
+
     def __str__(self):
         return self.text
     class Meta:
